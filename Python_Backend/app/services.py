@@ -5,8 +5,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_URL = os.getenv("github_api_url")
-TOKEN = os.getenv("github_api_token")
+API_URL = os.getenv("GITHUB_API_URL")
+TOKEN = os.getenv("GITHUB_API_TOKEN")
+print(f"API_URL: {API_URL}")
+print(f"Token: {TOKEN}")
+
+
+if not API_URL:
+    raise ValueError("API_URL is not set. Check your .env file.")
+if not TOKEN:
+    raise ValueError("GitHub API token is not set. Check your .env file.")
+
 HEADERS = {"Authorization": f"token {TOKEN}"}
 
 

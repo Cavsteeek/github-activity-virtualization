@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from services import fetch_commits, fetch_contributors, fetch_issues
+from .services import fetch_commits, fetch_contributors, fetch_issues
 from pydantic import BaseModel
 
 gapp = FastAPI()
