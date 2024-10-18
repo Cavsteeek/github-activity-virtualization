@@ -2,7 +2,7 @@ import httpx
 import os
 from fastapi import HTTPException
 from dotenv import load_dotenv
-from .models import Commit, Contributor, Issue
+from .models import Commit, Contributor, Issue, PullRequest
 
 
 load_dotenv()
@@ -72,4 +72,24 @@ async def fetch_issues(owner: str, repo: str):
                 created_at=issue["created_at"],
             )
             for issue in issues_data
+        ]
+
+
+# Fetch pull requests
+async def fetch_pull_requests(owner: str, repo: str):
+    url = f"{API_URL}{owner}/{repo}/pulls?state=all"
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=HEADERS)
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code, detail="Error fetching pull requests"
+            )
+        pull_requests_data = response.json()
+        return [
+            PullRequest(
+                title=pull_request["title"],
+                state=pull_request["state"],
+                created_at=pull_request["created_at"],
+            )
+            for pull_request in pull_requests_data
         ]

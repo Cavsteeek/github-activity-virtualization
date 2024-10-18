@@ -10,7 +10,7 @@ class Commit(BaseModel):
 
 class Contributor(BaseModel):
     login: str
-    contributions: str
+    contributions: int
 
 
 class Issue(BaseModel):
@@ -18,4 +18,8 @@ class Issue(BaseModel):
     state: str
     created_at: str
 
-class 
+
+class PullRequest(BaseModel):
+    title: str
+    state: str
+    created_at: str
