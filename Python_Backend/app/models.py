@@ -17,3 +17,5 @@ class Issue(BaseModel):
     title: str
     state: str
     created_at: str
+
+class 
