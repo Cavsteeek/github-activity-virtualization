@@ -5,9 +5,9 @@ from .services import (
     fetch_issues,
     fetch_pull_requests,
 )
-from pydantic import BaseModel
+
 from typing import List
-from . import models
+
 
 gapp = FastAPI()
 
