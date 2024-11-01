@@ -1,41 +1,51 @@
 <template>
-  <div class="min-h-screen bg-gray-100 p-4">
-    <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
-      <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">
-        GitHub Repository Activity Visualizer
-      </h1>
+  <div class="min-h-screen bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+          GitHub Repository Activity Visualizer
+        </h1>
 
-      <!-- Input for GitHub URL -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Enter your GitHub repository URL:</label>
-        <input type="text" placeholder="https://github.com/owner/repo"
-          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
-          v-model="githubUrl" />
-        <button class="w-full mt-4 bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition"
-          @click="fetchData">
-          Fetch Data
-        </button>
-      </div>
+        <!-- Input Section -->
+        <div class="mb-8">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Enter your GitHub repository URL:</label>
+          <div class="flex gap-4">
+            <input type="text" placeholder="https://github.com/owner/repo"
+              class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              v-model="githubUrl" />
+            <button class="px-6 bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition"
+              @click="fetchData">
+              Fetch Data
+            </button>
+          </div>
+        </div>
 
-      <!-- Charts for Visualizing Data -->
-      <div v-if="commitChartOptions" class="mb-8">
-        <h2 class="text-lg font-semibold mb-2">Commit Frequency</h2>
-        <v-chart :option="commitChartOptions" style="height: 400px; width: 100%;"></v-chart>
-      </div>
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Commit Frequency Chart -->
+          <div v-if="commitChartOptions" class="bg-white rounded-lg p-4 shadow">
+            <h2 class="text-xl font-semibold mb-4">Commit Frequency</h2>
+            <v-chart :option="commitChartOptions" :autoresize="true" class="w-full h-[400px]" />
+          </div>
 
-      <div v-if="contributorChartOptions" class="mb-8">
-        <h2 class="text-lg font-semibold mb-2">Contributor Stats</h2>
-        <v-chart :option="contributorChartOptions" style="height: 400px; width: 100%;"></v-chart>
-      </div>
+          <!-- Contributor Stats Chart -->
+          <div v-if="contributorChartOptions" class="bg-white rounded-lg p-4 shadow">
+            <h2 class="text-xl font-semibold mb-4">Contributor Stats</h2>
+            <v-chart :option="contributorChartOptions" :autoresize="true" class="w-full h-[400px]" />
+          </div>
 
-      <div v-if="issuesChartOptions" class="mb-8">
-        <h2 class="text-lg font-semibold mb-2">Issues Count</h2>
-        <v-chart :option="issuesChartOptions" style="height: 400px; width: 100%;"></v-chart>
-      </div>
+          <!-- Issues Chart -->
+          <div v-if="issuesChartOptions" class="bg-white rounded-lg p-4 shadow">
+            <h2 class="text-xl font-semibold mb-4">Issues Count</h2>
+            <v-chart :option="issuesChartOptions" :autoresize="true" class="w-full h-[400px]" />
+          </div>
 
-      <div v-if="pullRequestsChartOptions" class="mb-8">
-        <h2 class="text-lg font-semibold mb-2">Pull Requests Count</h2>
-        <v-chart :option="pullRequestsChartOptions" style="height: 400px; width: 100%;"></v-chart>
+          <!-- Pull Requests Chart -->
+          <div v-if="pullRequestsChartOptions" class="bg-white rounded-lg p-4 shadow">
+            <h2 class="text-xl font-semibold mb-4">Pull Requests Count</h2>
+            <v-chart :option="pullRequestsChartOptions" :autoresize="true" class="w-full h-[400px]" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -46,14 +56,32 @@ import { defineComponent } from 'vue'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart, PieChart } from 'echarts/charts'
-import { GridComponent, TooltipComponent, TitleComponent, LegendComponent } from 'echarts/components'
-import ECharts from 'vue-echarts'
+import {
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  LegendComponent,
+  ToolboxComponent
+} from 'echarts/components'
+import VChart from 'vue-echarts'
 import axios from 'axios'
 
-use([CanvasRenderer, BarChart, PieChart, GridComponent, TooltipComponent, TitleComponent, LegendComponent])
+use([
+  CanvasRenderer,
+  BarChart,
+  PieChart,
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  LegendComponent,
+  ToolboxComponent
+])
 
 export default defineComponent({
-  components: { VChart: ECharts },
+  name: 'GithubVisualizer',
+  components: {
+    VChart
+  },
   data() {
     return {
       githubUrl: '',
@@ -67,81 +95,203 @@ export default defineComponent({
   },
   methods: {
     extractRepoDetails() {
-      const regex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)$/
+      const regex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/?$/
       const match = this.githubUrl.match(regex)
       if (match) {
         this.owner = match[1]
         this.repo = match[2]
-      } else {
-        alert("Please enter a valid GitHub repository URL")
+        return true
       }
+      alert("Please enter a valid GitHub repository URL")
+      return false
     },
     async fetchData() {
-      this.extractRepoDetails()
-      if (!this.owner || !this.repo) return
+      if (!this.extractRepoDetails()) return
 
       try {
-        await Promise.all([this.getCommit(), this.getContributorStats(), this.getIssues(), this.getPullRequests()])
+        await Promise.all([
+          this.getCommit(),
+          this.getContributorStats(),
+          this.getIssues(),
+          this.getPullRequests()
+        ])
       } catch (error) {
         console.error("Error fetching data:", error)
+        alert("Error fetching repository data. Please try again.")
       }
     },
     async getCommit() {
-      const apiUrl = `http://localhost:8000/commits?owner=${this.owner}&repo=${this.repo}`
       try {
-        const response = await axios.get(apiUrl)
-        const commitData = response.data.map((item, index) => ({ week: `Week ${index + 1}`, count: item.commit_count }))
+        const response = await axios.get(`http://localhost:8000/commits?owner=${this.owner}&repo=${this.repo}`)
+        const commitData = response.data.map((item, index) => ({
+          week: `Week ${index + 1}`,
+          count: item.commit_count
+        }))
+
         this.commitChartOptions = {
-          title: { text: 'Commit Frequency' },
-          tooltip: {},
-          xAxis: { type: 'category', data: commitData.map(item => item.week) },
-          yAxis: { type: 'value' },
-          series: [{ type: 'bar', data: commitData.map(item => item.count) }]
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: commitData.map(item => item.week),
+            axisLabel: {
+              rotate: 45
+            }
+          },
+          yAxis: {
+            type: 'value',
+            name: 'Commits'
+          },
+          series: [{
+            name: 'Commits',
+            type: 'bar',
+            data: commitData.map(item => item.count),
+            itemStyle: {
+              color: '#6366f1'
+            }
+          }]
         }
       } catch (error) {
         console.error("Error fetching commits:", error)
       }
     },
     async getContributorStats() {
-      const apiUrl = `http://localhost:8000/contributors?owner=${this.owner}&repo=${this.repo}`
       try {
-        const response = await axios.get(apiUrl)
-        const contributorData = response.data.map(contrib => ({ name: contrib.login, value: contrib.contributions }))
+        const response = await axios.get(`http://localhost:8000/contributors?owner=${this.owner}&repo=${this.repo}`)
+        const contributorData = response.data.map(contrib => ({
+          name: contrib.login,
+          value: contrib.contributions
+        }))
+
         this.contributorChartOptions = {
-          title: { text: 'Contributor Stats' },
-          tooltip: { trigger: 'item' },
-          legend: { orient: 'vertical', left: 'left' },
-          series: [{ type: 'pie', radius: '50%', data: contributorData }]
+          tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {c} ({d}%)'
+          },
+          legend: {
+            orient: 'vertical',
+            left: 'right',
+            top: 'middle',
+            type: 'scroll'
+          },
+          series: [{
+            name: 'Contributions',
+            type: 'pie',
+            radius: '70%',
+            center: ['40%', '50%'],
+            data: contributorData,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }]
         }
       } catch (error) {
         console.error("Error fetching contributors:", error)
       }
     },
     async getIssues() {
-      const apiUrl = `http://localhost:8000/issues?owner=${this.owner}&repo=${this.repo}`
       try {
-        const response = await axios.get(apiUrl)
-        const issuesData = [{ name: 'Open Issues', value: response.data.open }, { name: 'Closed Issues', value: response.data.closed }]
+        const response = await axios.get(`http://localhost:8000/issues?owner=${this.owner}&repo=${this.repo}`)
+        const issuesData = [
+          { name: 'Open Issues', value: response.data.open },
+          { name: 'Closed Issues', value: response.data.closed }
+        ]
+
         this.issuesChartOptions = {
-          title: { text: 'Issues Count' },
-          tooltip: { trigger: 'item' },
-          legend: { data: ['Open Issues', 'Closed Issues'] },
-          series: [{ type: 'bar', data: issuesData }]
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {
+            data: ['Issues']
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: issuesData.map(item => item.name)
+          },
+          yAxis: {
+            type: 'value',
+            name: 'Count'
+          },
+          series: [{
+            name: 'Issues',
+            type: 'bar',
+            data: issuesData.map(item => item.value),
+            itemStyle: {
+              color: function (params) {
+                return params.dataIndex === 0 ? '#ef4444' : '#22c55e'
+              }
+            }
+          }]
         }
       } catch (error) {
         console.error("Error fetching issues:", error)
       }
     },
     async getPullRequests() {
-      const apiUrl = `http://localhost:8000/pull_requests?owner=${this.owner}&repo=${this.repo}`
       try {
-        const response = await axios.get(apiUrl)
-        const pullRequestData = [{ name: 'Open PRs', value: response.data.open }, { name: 'Merged PRs', value: response.data.merged }]
+        const response = await axios.get(`http://localhost:8000/pull_requests?owner=${this.owner}&repo=${this.repo}`)
+        const prData = [
+          { name: 'Open PRs', value: response.data.open },
+          { name: 'Merged PRs', value: response.data.merged }
+        ]
+
         this.pullRequestsChartOptions = {
-          title: { text: 'Pull Requests Count' },
-          tooltip: { trigger: 'item' },
-          legend: { data: ['Open PRs', 'Merged PRs'] },
-          series: [{ type: 'bar', data: pullRequestData }]
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {
+            data: ['Pull Requests']
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: prData.map(item => item.name)
+          },
+          yAxis: {
+            type: 'value',
+            name: 'Count'
+          },
+          series: [{
+            name: 'Pull Requests',
+            type: 'bar',
+            data: prData.map(item => item.value),
+            itemStyle: {
+              color: function (params) {
+                return params.dataIndex === 0 ? '#6366f1' : '#8b5cf6'
+              }
+            }
+          }]
         }
       } catch (error) {
         console.error("Error fetching pull requests:", error)
@@ -150,7 +300,6 @@ export default defineComponent({
   }
 })
 </script>
-
 <style>
 .chart-container {
   width: 100%;
