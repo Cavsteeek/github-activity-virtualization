@@ -50,7 +50,8 @@ async def fetch_contributors(owner: str, repo: str):
         contributors_data = response.json()
         return [
             Contributor(
-                login=contributor["login"], contributions=contributor["contributions"]
+                login=contributor["login"],
+                contributions=contributor["contributions"],
             )
             for contributor in contributors_data
         ]
