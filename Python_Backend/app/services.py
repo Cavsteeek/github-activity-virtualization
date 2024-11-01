@@ -3,6 +3,8 @@ import os
 from fastapi import HTTPException
 from dotenv import load_dotenv
 from .models import Commit, Contributor, Issue, PullRequest
+from datetime import datetime
+from collections import defaultdict
 
 
 load_dotenv()
@@ -10,7 +12,7 @@ load_dotenv()
 API_URL = os.getenv("GITHUB_API_URL")
 TOKEN = os.getenv("GITHUB_API_TOKEN")
 
-
+# Ensure API_URL and TOKEN are set
 if not API_URL:
     raise ValueError("API_URL is not set. Check your .env file.")
 if not TOKEN:
@@ -94,3 +96,26 @@ async def fetch_pull_requests(owner: str, repo: str):
             )
             for pull_request in pull_requests_data
         ]
+
+
+def calculate_commit_frequency(commits):
+    frequency = defaultdict(int)
+
+    for commit in commits:
+        commit_date = datetime.strptime(commit.date, "%Y-%m-%dT%H:%M:%SZ")
+        week_year = commit_date.strftime("%Y-W%U")
+        frequency[week_year] += 1
+
+    return [{"week": week, "count": count} for week, count in frequency.items()]
+
+
+def count_issues(issues):
+    open_count = sum(1 for issue in issues if issue.state == "open")
+    closed_count = sum(1 for issue in issues if issue.state == "closed")
+    return {"open": open_count, "closed": closed_count}
+
+
+def count_pull_requests(pull_requests):
+    open_count = sum(1 for pr in pull_requests if pr.state == "open")
+    merged_count = sum(1 for pr in pull_requests if pr.state == "closed")
+    return {"open": open_count, "merged": merged_count}

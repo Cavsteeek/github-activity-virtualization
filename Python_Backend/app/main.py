@@ -6,6 +6,9 @@ from .services import (
     fetch_contributors,
     fetch_issues,
     fetch_pull_requests,
+    calculate_commit_frequency,
+    count_issues,
+    count_pull_requests,
 )
 
 from typing import List
@@ -30,6 +33,30 @@ gapp.add_middleware(
 @gapp.get("/wel")
 def root():
     return {"message": "My first project ykkk"}
+
+
+# Endpoint to get commit frequency
+@gapp.get("/commit_frequency")
+async def get_commit_frequency(owner: str, repo: str):
+    commits = await fetch_commits(owner, repo)
+    frequency = calculate_commit_frequency(commits)
+    return frequency
+
+
+# Endpoint to get issue counts
+@gapp.get("/issue_counts")
+async def get_issue_counts(owner: str, repo: str):
+    issues = await fetch_issues(owner, repo)
+    counts = count_issues(issues)
+    return counts
+
+
+# Endpoint to get pull request counts
+@gapp.get("/pull_request_counts")
+async def get_pull_request_counts(owner: str, repo: str):
+    pull_requests = await fetch_pull_requests(owner, repo)
+    counts = count_pull_requests(pull_requests)
+    return counts
 
 
 # Endpoint to get commit data
