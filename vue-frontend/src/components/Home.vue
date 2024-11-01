@@ -95,74 +95,74 @@ export default defineComponent({
   },
   methods: {
     extractRepoDetails() {
-      const regex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/?$/
-      const match = this.githubUrl.match(regex)
+      const regex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/?$/;
+      const match = this.githubUrl.match(regex);
       if (match) {
-        this.owner = match[1]
-        this.repo = match[2]
-        return true
+        this.owner = match[1];
+        this.repo = match[2];
+        return true;
       }
-      alert("Please enter a valid GitHub repository URL")
-      return false
+      alert("Please enter a valid GitHub repository URL");
+      return false;
     },
     async fetchData() {
-      if (!this.extractRepoDetails()) return
+      if (!this.extractRepoDetails()) return;
 
       try {
         await Promise.all([
-          this.getCommit(),
+          this.getCommitFrequency(),  // Change here
           this.getContributorStats(),
-          this.getIssues(),
-          this.getPullRequests()
-        ])
+          this.getIssues(),  // You may keep this if you need additional issue data
+          this.getPullRequests()  // You may keep this if you need additional PR data
+        ]);
       } catch (error) {
-        console.error("Error fetching data:", error)
-        alert("Error fetching repository data. Please try again.")
+        console.error("Error fetching data:", error);
+        alert("Error fetching repository data. Please try again.");
       }
     },
-    async getCommit() {
+    async getCommitFrequency() {  // Adjusted method for commit frequency
       try {
-        const response = await axios.get(`http://localhost:8000/commits?owner=${this.owner}&repo=${this.repo}`)
+        const response = await axios.get(`http://localhost:8000/commit_frequency?owner=${this.owner}&repo=${this.repo}`);
         const commitData = response.data.map((item, index) => ({
           week: `Week ${index + 1}`,
-          count: item.commit_count
-        }))
+          count: item.commit_count,
+        }));
 
         this.commitChartOptions = {
           tooltip: {
             trigger: 'axis',
             axisPointer: {
-              type: 'shadow'
-            }
+              type: 'shadow',
+            },
           },
           grid: {
             left: '3%',
             right: '4%',
             bottom: '3%',
-            containLabel: true
+            containLabel: true,
           },
           xAxis: {
             type: 'category',
             data: commitData.map(item => item.week),
             axisLabel: {
-              rotate: 45
-            }
+              rotate: 45,
+            },
           },
           yAxis: {
             type: 'value',
-            name: 'Commits'
+            name: 'Commits',
           },
           series: [{
             name: 'Commits',
             type: 'bar',
             data: commitData.map(item => item.count),
             itemStyle: {
-              color: '#6366f1'
-            }
-          }]
-        }
+              color: '#6366f1',
+            },
+          }],
+        };
       } catch (error) {
-        console.error("Error fetching commits:", error)
+        console.error("Error fetching commit frequency:", error);
       }
     },
     async getContributorStats() {
@@ -205,7 +205,7 @@ export default defineComponent({
     },
     async getIssues() {
       try {
-        const response = await axios.get(`http://localhost:8000/issues?owner=${this.owner}&repo=${this.repo}`)
+        const response = await axios.get(`http://localhost:8000/issue_counts?owner=${this.owner}&repo=${this.repo}`)
         const issuesData = [
           { name: 'Open Issues', value: response.data.open },
           { name: 'Closed Issues', value: response.data.closed }
@@ -252,7 +252,7 @@ export default defineComponent({
     },
     async getPullRequests() {
       try {
-        const response = await axios.get(`http://localhost:8000/pull_requests?owner=${this.owner}&repo=${this.repo}`)
+        const response = await axios.get(`http://localhost:8000/pull_request_counts?owner=${this.owner}&repo=${this.repo}`)
         const prData = [
           { name: 'Open PRs', value: response.data.open },
           { name: 'Merged PRs', value: response.data.merged }
