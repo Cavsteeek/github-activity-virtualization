@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import requests
 
 from .services import (
     fetch_commits,
@@ -41,6 +42,17 @@ async def get_commit_frequency(owner: str, repo: str):
     commits = await fetch_commits(owner, repo)
     frequency = calculate_commit_frequency(commits)
     return frequency
+
+
+@gapp.get("/check_repo")
+async def check_repo(owner: str, repo: str):
+    url = f"https://api.github.com/repos/{owner}/{repo}"
+    response = requests.get(url)
+
+    if response.status_code == 404:
+        raise HTTPException(status_code=404, detail="Repository not found")
+
+    return {"message": "Repository exists"}
 
 
 # Endpoint to get issue counts

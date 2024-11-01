@@ -109,24 +109,27 @@ export default defineComponent({
       if (!this.extractRepoDetails()) return;
 
       try {
+        const checkResponse = await axios.get(`http://localhost:8000/check_repo?owner=${this.owner}&repo=${this.repo}`);
+        if (checkResponse.status === 404) {
+          alert("Repository not found");
+          return;
+        }
+
         await Promise.all([
-          this.getCommitFrequency(),  // Change here
+          this.getCommitFrequency(),
           this.getContributorStats(),
-          this.getIssues(),  // You may keep this if you need additional issue data
-          this.getPullRequests()  // You may keep this if you need additional PR data
+          this.getIssues(),
+          this.getPullRequests()
         ]);
       } catch (error) {
         console.error("Error fetching data:", error);
         alert("Error fetching repository data. Please try again.");
       }
     },
-    async getCommitFrequency() {  // Adjusted method for commit frequency
+    async getCommitFrequency() {  // method for commit frequency
       try {
         const response = await axios.get(`http://localhost:8000/commit_frequency?owner=${this.owner}&repo=${this.repo}`);
-        const commitData = response.data.map((item, index) => ({
-          week: `Week ${index + 1}`,
-          count: item.commit_count,
-        }));
+        const commitData = response.data.map(item => ({ week: item.week, count: item.count }));
 
         this.commitChartOptions = {
           tooltip: {
@@ -135,17 +138,13 @@ export default defineComponent({
               type: 'shadow',
             },
           },
-          grid: {
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true,
-          },
           xAxis: {
             type: 'category',
             data: commitData.map(item => item.week),
             axisLabel: {
               rotate: 45,
+              overflow: 'truncate',
+              ellipsis: '...',
             },
           },
           yAxis: {
@@ -162,7 +161,7 @@ export default defineComponent({
           }],
         };
       } catch (error) {
-        console.error("Error fetching commit frequency:", error);
+        console.error("Error fetching commits:", error);
       }
     },
     async getContributorStats() {
