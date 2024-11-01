@@ -1,8 +1,97 @@
 <script>
+import axios from 'axios'
+
 export default {
   name: 'Home',
-}
+  data() {
+    return {
+      githubUrl: '',
+      owner: '',
+      repo: '',
+    }
+  },
 
+  methods: {
+    extractRepoDetails() {
+      const regex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)$/;
+      const match = this.githubUrl.match(regex);
+      if (match) {
+        this.owner = match[1];
+        this.repo = match[2];
+      } else {
+        alert("Please enter a valid GitHub repository URL");
+      }
+    },
+
+    async getCommit() {
+      this.extractRepoDetails();
+      const apiUrl = `http://127.0.0.1:8000/commits?owner=${this.owner}&repo=${this.repo}`;
+
+      try {
+        const response = await axios.get(apiUrl);
+        if (response.status >= 200 && response.status < 300) {
+          alert("Commit data fetched successfully");
+          console.log("Commit Data: ", response.data);
+        } else {
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getContributorStats() {
+      this.extractRepoDetails();
+      const apiUrl = `http://127.0.0.1:8000/contributors?owner=${this.owner}&repo=${this.repo}`;
+
+      try {
+        const response = await axios.get(apiUrl);
+        if (response.status >= 200 && response.status < 300) {
+          alert("Contributor data fetched successfully");
+          console.log("Contributor Data: ", response.data);
+        } else {
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getIssues() {
+      this.extractRepoDetails();
+      const apiUrl = `http://127.0.0.1:8000/issues?owner=${this.owner}&repo=${this.repo}`;
+
+      try {
+        const response = await axios.get(apiUrl);
+        if (response.status >= 200 && response.status < 300) {
+          alert("Issues data fetched successfully");
+          console.log("Issues Data: ", response.data);
+        } else {
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async getPullRequests() {
+      this.extractRepoDetails();
+      const apiUrl = `http://127.0.0.1:8000/pull_requests?owner=${this.owner}&repo=${this.repo}`;
+
+      try {
+        const response = await axios.get(apiUrl);
+        if (response.status >= 200 && response.status < 300) {
+          alert("Pull requests data fetched successfully");
+          console.log("Pull Requests Data: ", response.data);
+        } else {
+          console.log(response.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  }
+}
 </script>
 
 <template>
@@ -19,7 +108,8 @@ export default {
           Enter your GitHub repository URL:
         </label>
         <input type="text" placeholder="https://github.com/owner/repo"
-          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200" />
+          class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-200"
+          v-model="githubUrl" />
         <button class="w-full mt-4 bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition">
           Fetch Data
         </button>
