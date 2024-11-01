@@ -109,12 +109,9 @@ export default defineComponent({
       if (!this.extractRepoDetails()) return;
 
       try {
-        const checkResponse = await axios.get(`http://localhost:8000/check_repo?owner=${this.owner}&repo=${this.repo}`);
-        if (checkResponse.status === 404) {
-          alert("Repository not found");
-          return;
-        }
+        await axios.get(`http://localhost:8000/check_repo?owner=${this.owner}&repo=${this.repo}`);
 
+        // If the response was successful, fetch other data
         await Promise.all([
           this.getCommitFrequency(),
           this.getContributorStats(),
@@ -122,10 +119,17 @@ export default defineComponent({
           this.getPullRequests()
         ]);
       } catch (error) {
+
         console.error("Error fetching data:", error);
-        alert("Error fetching repository data. Please try again.");
+
+        if (error.response) {
+          alert(`Error fetching repository data: ${error.response.data.detail || error.message}`);
+        } else {
+          alert("Error fetching repository data. Please try again.");
+        }
       }
     },
+
     async getCommitFrequency() {  // method for commit frequency
       try {
         const response = await axios.get(`http://localhost:8000/commit_frequency?owner=${this.owner}&repo=${this.repo}`);
