@@ -31,11 +31,6 @@ gapp.add_middleware(
 )
 
 
-@gapp.get("/wel")
-def root():
-    return {"message": "My first project ykkk"}
-
-
 # Endpoint to get commit frequency
 @gapp.get("/commit_frequency")
 async def get_commit_frequency(owner: str, repo: str):
