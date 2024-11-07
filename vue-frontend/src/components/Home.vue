@@ -26,13 +26,13 @@
           <!-- Commit Frequency Chart - spans across two columns on medium screens and above -->
           <div v-if="commitChartOptions" class="col-span-1 md:col-span-2 bg-white rounded-lg p-4 shadow">
             <h2 class="text-xl font-semibold mb-4">Commit Frequency</h2>
-            <v-chart :option="commitChartOptions" :autoresize="true" class="w-full h-[400px]" />
+            <v-chart :option="commitChartOptions" :autoresize="true" class="w-full h-[500px]" />
           </div>
 
           <!-- Contributor Stats Chart - placed on a new row after Commit Frequency -->
           <div v-if="contributorChartOptions" class="col-span-1 md:col-span-2 bg-white rounded-lg p-4 shadow">
             <h2 class="text-xl font-semibold mb-4">Contributor Stats</h2>
-            <v-chart :option="contributorChartOptions" :autoresize="true" class="w-full h-[400px]" />
+            <v-chart :option="contributorChartOptions" :autoresize="true" class="w-full h-[650px]" />
           </div>
 
           <!-- Issues Chart -->
