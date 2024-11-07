@@ -21,24 +21,57 @@ if not TOKEN:
 HEADERS = {"Authorization": f"token {TOKEN}"}
 
 
+# async def fetch_commits(owner: str, repo: str):
+#     url = f"{API_URL}{owner}/{repo}/commits"
+#     async with httpx.AsyncClient() as client:
+#         response = await client.get(url, headers=HEADERS)
+#         if response.status_code != 200:
+#             raise HTTPException(
+#                 status_code=response.status_code, detail="Error fetching commits"
+#             )
+#         commits_data = response.json()
+#         return [
+#             Commit(
+#                 sha=commit["sha"],
+#                 message=commit["commit"]["message"],
+#                 author_name=commit["commit"]["author"]["name"],
+#                 date=commit["commit"]["author"]["date"],
+#             )
+#             for commit in commits_data
+#         ]
+
+
 async def fetch_commits(owner: str, repo: str):
     url = f"{API_URL}{owner}/{repo}/commits"
+    all_commits = []
+    page = 1
+
     async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=HEADERS)
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code, detail="Error fetching commits"
+        while True:
+            response = await client.get(
+                url, headers=HEADERS, params={"per_page": 100, "page": page}
             )
-        commits_data = response.json()
-        return [
-            Commit(
-                sha=commit["sha"],
-                message=commit["commit"]["message"],
-                author_name=commit["commit"]["author"]["name"],
-                date=commit["commit"]["author"]["date"],
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=response.status_code, detail="Error fetching commits"
+                )
+            commits_data = response.json()
+
+            if not commits_data:  # Stop if there are no more commits
+                break
+
+            all_commits.extend(
+                Commit(
+                    sha=commit["sha"],
+                    message=commit["commit"]["message"],
+                    author_name=commit["commit"]["author"]["name"],
+                    date=commit["commit"]["author"]["date"],
+                )
+                for commit in commits_data
             )
-            for commit in commits_data
-        ]
+            page += 1
+
+    return all_commits
 
 
 async def fetch_contributors(owner: str, repo: str):

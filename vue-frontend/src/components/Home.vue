@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="min-h-screen relative bg-gray-100">
     <div class="container mx-auto px-4 py-8">
       <div class="bg-white shadow-lg rounded-lg p-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
@@ -23,14 +23,14 @@
         <!-- Extend the commit frequency part and also add notifs, find another name for it -->
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- Commit Frequency Chart -->
-          <div v-if="commitChartOptions" class="bg-white rounded-lg p-4 shadow">
+          <!-- Commit Frequency Chart - spans across two columns on medium screens and above -->
+          <div v-if="commitChartOptions" class="col-span-1 md:col-span-2 bg-white rounded-lg p-4 shadow">
             <h2 class="text-xl font-semibold mb-4">Commit Frequency</h2>
             <v-chart :option="commitChartOptions" :autoresize="true" class="w-full h-[400px]" />
           </div>
 
-          <!-- Contributor Stats Chart -->
-          <div v-if="contributorChartOptions" class="bg-white rounded-lg p-4 shadow">
+          <!-- Contributor Stats Chart - placed on a new row after Commit Frequency -->
+          <div v-if="contributorChartOptions" class="col-span-1 md:col-span-2 bg-white rounded-lg p-4 shadow">
             <h2 class="text-xl font-semibold mb-4">Contributor Stats</h2>
             <v-chart :option="contributorChartOptions" :autoresize="true" class="w-full h-[400px]" />
           </div>
@@ -49,6 +49,15 @@
         </div>
       </div>
     </div>
+    <!-- Footer -->
+    <!-- <footer class="mt-8 absolute bottom-5 flex justify-center w-screen items-center text-center text-gray-500 text-sm">
+      <p>Cavsteek 2024</p>
+    </footer> -->
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-500 text-md font-bold py-4">
+      &copy; Cavsteek 2024
+    </footer>
   </div>
 </template>
 
