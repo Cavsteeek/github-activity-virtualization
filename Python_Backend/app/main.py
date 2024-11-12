@@ -31,6 +31,14 @@ gapp.add_middleware(
 )
 
 
+# Endpoint to get commit frequency
+@gapp.get("/commit_frequency")
+async def get_commit_frequency(owner: str, repo: str):
+    commits = await fetch_commits(owner, repo)
+    frequency = calculate_commit_frequency(commits)
+    return frequency
+
+
 @gapp.get("/check_repo")
 async def check_repo(owner: str, repo: str):
     url = f"https://api.github.com/repos/{owner}/{repo}"
@@ -42,18 +50,26 @@ async def check_repo(owner: str, repo: str):
     return {"message": "Repository exists"}
 
 
+# Endpoint to get issue counts
+@gapp.get("/issue_counts")
+async def get_issue_counts(owner: str, repo: str):
+    issues = await fetch_issues(owner, repo)
+    counts = count_issues(issues)
+    return counts
+
+
+# Endpoint to get pull request counts
+@gapp.get("/pull_request_counts")
+async def get_pull_request_counts(owner: str, repo: str):
+    pull_requests = await fetch_pull_requests(owner, repo)
+    counts = count_pull_requests(pull_requests)
+    return counts
+
+
 # Endpoint to get commit data
 @gapp.get("/commits")
 async def get_commits(owner: str, repo: str):
     return await fetch_commits(owner, repo)
-
-
-# Endpoint to get commit frequency
-@gapp.get("/commit_frequency")
-async def get_commit_frequency(owner: str, repo: str):
-    commits = await fetch_commits(owner, repo)
-    frequency = calculate_commit_frequency(commits)
-    return frequency
 
 
 # Endpoint to get contributor data
@@ -68,23 +84,7 @@ async def get_issues(owner: str, repo: str):
     return await fetch_issues(owner, repo)
 
 
-# Endpoint to get issue counts
-@gapp.get("/issue_counts")
-async def get_issue_counts(owner: str, repo: str):
-    issues = await fetch_issues(owner, repo)
-    counts = count_issues(issues)
-    return counts
-
-
 # Endpoint to get pull request data
 @gapp.get("/pull_requests")
 async def get_pull_requests(owner: str, repo: str):
     return await fetch_pull_requests(owner, repo)
-
-
-# Endpoint to get pull request counts
-@gapp.get("/pull_request_counts")
-async def get_pull_request_counts(owner: str, repo: str):
-    pull_requests = await fetch_pull_requests(owner, repo)
-    counts = count_pull_requests(pull_requests)
-    return counts
