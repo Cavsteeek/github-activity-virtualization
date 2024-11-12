@@ -3,7 +3,7 @@
     <div class="container mx-auto px-4 py-8">
       <div class="bg-white shadow-lg rounded-lg p-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
-          GitHub Repository Activity Visualizer
+          GitViz
         </h1>
 
         <!-- Input Section -->
