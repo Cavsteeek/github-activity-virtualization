@@ -40,38 +40,63 @@ HEADERS = {"Authorization": f"token {TOKEN}"}
 #             for commit in commits_data
 #         ]
 
+# to return a lot of commits
+# async def fetch_commits(owner: str, repo: str):
+#     url = f"{API_URL}{owner}/{repo}/commits"
+#     all_commits = []
+#     page = 1
 
+#     async with httpx.AsyncClient() as client:
+#         while True:
+#             response = await client.get(
+#                 url, headers=HEADERS, params={"per_page": 100, "page": page}
+#             )
+#             if response.status_code != 200:
+#                 raise HTTPException(
+#                     status_code=response.status_code, detail="Error fetching commits"
+#                 )
+#             commits_data = response.json()
+
+#             if not commits_data:  # Stop if there are no more commits
+#                 break
+
+#             all_commits.extend(
+#                 Commit(
+#                     sha=commit["sha"],
+#                     message=commit["commit"]["message"],
+#                     author_name=commit["commit"]["author"]["name"],
+#                     date=commit["commit"]["author"]["date"],
+#                 )
+#                 for commit in commits_data
+#             )
+#             page += 1
+
+#     return all_commits
+
+
+# to return the top 10 commits
 async def fetch_commits(owner: str, repo: str):
     url = f"{API_URL}{owner}/{repo}/commits"
-    all_commits = []
-    page = 1
 
     async with httpx.AsyncClient() as client:
-        while True:
-            response = await client.get(
-                url, headers=HEADERS, params={"per_page": 100, "page": page}
+        response = await client.get(
+            url, headers=HEADERS, params={"per_page": 10, "page": 1}
+        )
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code, detail="Error fetching commits"
             )
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=response.status_code, detail="Error fetching commits"
-                )
-            commits_data = response.json()
 
-            if not commits_data:  # Stop if there are no more commits
-                break
-
-            all_commits.extend(
-                Commit(
-                    sha=commit["sha"],
-                    message=commit["commit"]["message"],
-                    author_name=commit["commit"]["author"]["name"],
-                    date=commit["commit"]["author"]["date"],
-                )
-                for commit in commits_data
+        commits_data = response.json()
+        return [
+            Commit(
+                sha=commit["sha"],
+                message=commit["commit"]["message"],
+                author_name=commit["commit"]["author"]["name"],
+                date=commit["commit"]["author"]["date"],
             )
-            page += 1
-
-    return all_commits
+            for commit in commits_data
+        ]
 
 
 async def fetch_contributors(owner: str, repo: str):
