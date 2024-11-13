@@ -1,6 +1,12 @@
 <template>
   <div class="min-h-screen relative bg-gray-100">
     <div class="container mx-auto px-4 py-8">
+      <!-- Notification -->
+      <transition name="fade">
+        <div v-if="notification" class="fixed top-4 right-4 p-4 bg-blue-600 text-white rounded-lg shadow-lg">
+          {{ notification }}
+        </div>
+      </transition>
       <div class="bg-white shadow-lg rounded-lg p-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
           GitViz
@@ -14,10 +20,11 @@
               class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
               v-model="githubUrl" v-on:keyup.enter="fetchData" />
             <button class="px-6 bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition"
-              @click="fetchData">
+              @click="fetchData" :disabled="loading">
               Fetch Data
             </button>
           </div>
+          <p v-if="loading" class="text-gray-500 mt-2">Loading data...</p>
         </div>
 
         <!-- Extend the commit frequency part and also add notifs, find another name for it -->
@@ -25,7 +32,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <!-- Commit Frequency Chart -->
           <div v-if="commitChartOptions" class="col-span-1 md:col-span-2 bg-white rounded-lg p-4 shadow">
-            <h2 class="text-xl font-semibold mb-4">Commit Frequency</h2>
+            <h2 class="text-xl font-semibold mb-4">Commit Timeline</h2>
             <v-chart :option="commitChartOptions" :autoresize="true" class="w-full h-[400px]" />
           </div>
           <!-- Contributor Stats Chart (right column) -->
@@ -101,6 +108,8 @@ export default defineComponent({
       contributorChartOptions: null,
       issuesChartOptions: null,
       pullRequestsChartOptions: null,
+      loading: false,
+      notification: null,
     }
   },
   methods: {
@@ -117,6 +126,8 @@ export default defineComponent({
     },
     async fetchData() {
       if (!this.extractRepoDetails()) return;
+      this.loading = true;
+      this.notification = null;
 
       try {
         await axios.get(`http://localhost:8000/check_repo?owner=${this.owner}&repo=${this.repo}`);
@@ -128,15 +139,13 @@ export default defineComponent({
           this.getIssues(),
           this.getPullRequests()
         ]);
+        this.notification = "Data fetched successfully!";
       } catch (error) {
-
-        console.error("Error fetching data:", error);
-
-        if (error.response) {
-          alert(`Error fetching repository data: ${error.response.data.detail || error.message}`);
-        } else {
-          alert("Error fetching repository data. Please try again.");
-        }
+        // console.error("Error fetching data:", error);
+        this.notification = `Error: ${error.response?.data.detail || error.message}`;
+      } finally {
+        this.loading = false;
+        setTimeout(() => (this.notification = null), 3000); // Hide notification after 3 seconds
       }
     },
 
@@ -158,7 +167,7 @@ export default defineComponent({
             axisLabel: {
               rotate: 45,
               overflow: 'truncate',
-              ellipsis: '...',
+              // ellipsis: '...',
             },
           },
           yAxis: {
