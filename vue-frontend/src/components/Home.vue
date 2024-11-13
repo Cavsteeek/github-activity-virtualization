@@ -15,7 +15,7 @@
 
         <!-- Input Section -->
         <div class="mb-8">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Enter your GitHub repository URL:</label>
+          <label class="block text-md font-medium text-gray-700 mb-2">Enter your GitHub repository URL:</label>
           <div class="flex gap-4">
             <input type="text" placeholder="https://github.com/owner/repo"
               class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
@@ -36,7 +36,7 @@
             <h2 class="text-xl font-semibold mb-4">Commit Timeline</h2>
             <v-chart :option="commitChartOptions" :autoresize="true" class="w-full h-[400px]" />
           </div>
-          <!-- Contributor Stats Chart (right column) -->
+          <!-- Contributor Stats Chart -->
           <div v-if="contributorChartOptions" class="col-span-1 md:col-span-1 bg-white rounded-lg p-4 shadow">
             <h2 class="text-xl font-semibold mb-4">Contributor Stats</h2>
             <v-chart :option="contributorChartOptions" :autoresize="true" class="w-full h-[400px]" />
@@ -133,7 +133,6 @@ export default defineComponent({
       try {
         await axios.get(`http://localhost:8000/check_repo?owner=${this.owner}&repo=${this.repo}`);
 
-        // If the response was successful, fetch other data
         await Promise.all([
           this.getCommitFrequency(),
           this.getContributorStats(),
@@ -153,8 +152,8 @@ export default defineComponent({
     async getCommitFrequency() {  // method for commit frequency
       try {
         const response = await axios.get(`http://localhost:8000/commit_frequency?owner=${this.owner}&repo=${this.repo}`);
-        console.log(response.data)
-        const commitData = response.data.map(item => ({ week: item.week, count: item.count }));
+        if (response.status !== 200) throw new Error("Failed to fetch commit frequency");
+        const commitData = response.data.map(item => ({ date: item.date, count: item.count }));
 
         this.commitChartOptions = {
           tooltip: {
@@ -165,7 +164,7 @@ export default defineComponent({
           },
           xAxis: {
             type: 'category',
-            data: commitData.map(item => item.week),
+            data: commitData.map(item => item.date),
             axisLabel: {
               rotate: 20,
               // overflow: 'truncate',
@@ -192,6 +191,8 @@ export default defineComponent({
     async getContributorStats() {
       try {
         const response = await axios.get(`http://localhost:8000/contributors?owner=${this.owner}&repo=${this.repo}`)
+        if (response.status !== 200) throw new Error("Failed to fetch cotributors");
+
         const contributorData = response.data.map(contrib => ({
           name: contrib.login,
           value: contrib.contributions
@@ -230,6 +231,7 @@ export default defineComponent({
     async getIssues() {
       try {
         const response = await axios.get(`http://localhost:8000/issue_counts?owner=${this.owner}&repo=${this.repo}`)
+        if (response.status !== 200) throw new Error("Failed to fetch issues");
         const issuesData = [
           { name: 'Open Issues', value: response.data.open },
           { name: 'Closed Issues', value: response.data.closed }
@@ -277,6 +279,7 @@ export default defineComponent({
     async getPullRequests() {
       try {
         const response = await axios.get(`http://localhost:8000/pull_request_counts?owner=${this.owner}&repo=${this.repo}`)
+        if (response.status !== 200) throw new Error("Failed to fetch PR's");
         const prData = [
           { name: 'Open PRs', value: response.data.open },
           { name: 'Merged PRs', value: response.data.merged }
