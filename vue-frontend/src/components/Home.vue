@@ -3,7 +3,7 @@
     <div class="container mx-auto px-4 py-8">
       <!-- Notification -->
       <transition name="fade">
-        <div v-if="notification" class="fixed top-4 right-4 p-4 bg-blue-600 text-white rounded-lg shadow-lg">
+        <div v-if="notification" class="fixed top-12 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 bg-blue-600 text-white rounded-lg shadow-lg">
           {{ notification }}
         </div>
       </transition>
