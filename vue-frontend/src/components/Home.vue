@@ -23,28 +23,28 @@
         <!-- Extend the commit frequency part and also add notifs, find another name for it -->
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <!-- Commit Frequency Chart - spans across two columns on medium screens and above -->
+          <!-- Commit Frequency Chart -->
           <div v-if="commitChartOptions" class="col-span-1 md:col-span-2 bg-white rounded-lg p-4 shadow">
             <h2 class="text-xl font-semibold mb-4">Commit Frequency</h2>
-            <v-chart :option="commitChartOptions" :autoresize="true" class="w-full h-[500px]" />
+            <v-chart :option="commitChartOptions" :autoresize="true" class="w-full h-[400px]" />
           </div>
-
-          <!-- Contributor Stats Chart - placed on a new row after Commit Frequency -->
-          <div v-if="contributorChartOptions" class="col-span-1 md:col-span-2 bg-white rounded-lg p-4 shadow">
+          <!-- Contributor Stats Chart (right column) -->
+          <div v-if="contributorChartOptions" class="col-span-1 md:col-span-1 bg-white rounded-lg p-4 shadow">
             <h2 class="text-xl font-semibold mb-4">Contributor Stats</h2>
-            <v-chart :option="contributorChartOptions" :autoresize="true" class="w-full h-[650px]" />
+            <v-chart :option="contributorChartOptions" :autoresize="true" class="w-full h-[400px]" />
           </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Issues Chart -->
+            <div v-if="issuesChartOptions" class="bg-white rounded-lg p-4 shadow col-span-1">
+              <h2 class="text-xl font-semibold mb-4">Issues Count</h2>
+              <v-chart :option="issuesChartOptions" :autoresize="true" class="w-full h-[400px]" />
+            </div>
 
-          <!-- Issues Chart -->
-          <div v-if="issuesChartOptions" class="bg-white rounded-lg p-4 shadow">
-            <h2 class="text-xl font-semibold mb-4">Issues Count</h2>
-            <v-chart :option="issuesChartOptions" :autoresize="true" class="w-full h-[400px]" />
-          </div>
-
-          <!-- Pull Requests Chart -->
-          <div v-if="pullRequestsChartOptions" class="bg-white rounded-lg p-4 shadow">
-            <h2 class="text-xl font-semibold mb-4">Pull Requests Count</h2>
-            <v-chart :option="pullRequestsChartOptions" :autoresize="true" class="w-full h-[400px]" />
+            <!-- Pull Requests Chart -->
+            <div v-if="pullRequestsChartOptions" class="bg-white rounded-lg p-4 shadow col-span-1">
+              <h2 class="text-xl font-semibold mb-4">Pull Requests Count</h2>
+              <v-chart :option="pullRequestsChartOptions" :autoresize="true" class="w-full h-[400px]" />
+            </div>
           </div>
         </div>
       </div>
