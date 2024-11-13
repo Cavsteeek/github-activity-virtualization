@@ -49,7 +49,7 @@ async def fetch_commits(owner: str, repo: str):
     async with httpx.AsyncClient() as client:
         while True:
             response = await client.get(
-                url, headers=HEADERS, params={"per_page": 300, "page": page}
+                url, headers=HEADERS, params={"per_page": 100, "page": page}
             )
             if response.status_code != 200:
                 raise HTTPException(
