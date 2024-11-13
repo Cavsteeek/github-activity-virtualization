@@ -9,7 +9,7 @@
       </transition>
       <div class="bg-white shadow-lg rounded-lg p-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
-          <img src="../assets/gitviz_logo.jpg" alt="" class="inline-block ml-2 w-[200px]" />
+          <img src="../assets/gitviz_logo.jpg" alt="" class="inline-block ml-2 mt-2 w-[200px]" />
         </h1>
 
 
