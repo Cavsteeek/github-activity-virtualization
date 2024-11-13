@@ -9,8 +9,9 @@
       </transition>
       <div class="bg-white shadow-lg rounded-lg p-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">
-          GitViz
+          <img src="../assets/gitviz_logo.jpg" alt="" class="inline-block ml-2 w-[200px]" />
         </h1>
+
 
         <!-- Input Section -->
         <div class="mb-8">
@@ -152,6 +153,7 @@ export default defineComponent({
     async getCommitFrequency() {  // method for commit frequency
       try {
         const response = await axios.get(`http://localhost:8000/commit_frequency?owner=${this.owner}&repo=${this.repo}`);
+        console.log(response.data)
         const commitData = response.data.map(item => ({ week: item.week, count: item.count }));
 
         this.commitChartOptions = {
@@ -165,9 +167,9 @@ export default defineComponent({
             type: 'category',
             data: commitData.map(item => item.week),
             axisLabel: {
-              rotate: 45,
-              overflow: 'truncate',
-              // ellipsis: '...',
+              rotate: 20,
+              // overflow: 'truncate',
+              ellipsis: '...',
             },
           },
           yAxis: {
